@@ -1,19 +1,28 @@
 ﻿using GmailAPI.ApiHelper;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace GmailAPI
 {
     internal class Program
     {
-        static void Main(string[] args)
+
+        static  void Main(string[] args)
         {
             try
             {
+
+                CreateHostBuilder(args).Build().Run();
+                //var host = CreateHostBuilder(args).Build();
+                //await host.RunAsync();
+
                 List<Gmail> MailLists = GetAllEmails(Convert.ToString(ConfigurationManager.AppSettings["HostAddress"]));
 
             }
@@ -23,6 +32,18 @@ namespace GmailAPI
             }
         }
 
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+
+        //public static IHostBuilder CreateHostBuilder(string[] args) =>
+        //     Host.CreateDefaultBuilder(args)
+        //         .ConfigureServices((hostBuilderContext, serviceCollection) => new Startup(hostBuilderContext.Configuration)
+        //         .ConfigureServices(serviceCollection));
+
         public static List<Gmail> GetAllEmails(string HostEmailAddress)
         {
             try
@@ -30,6 +51,7 @@ namespace GmailAPI
                 GmailService GmailService = GmailAPIHelper.GetService();
                 List<Gmail> EmailList = new List<Gmail>();
                 UsersResource.MessagesResource.ListRequest ListRequest = GmailService.Users.Messages.List(HostEmailAddress);
+               
                 ListRequest.LabelIds = "INBOX";
                 ListRequest.IncludeSpamTrash = false;
                 ListRequest.Q = "is:unread"; //ONLY FOR UNDREAD EMAIL'S...
