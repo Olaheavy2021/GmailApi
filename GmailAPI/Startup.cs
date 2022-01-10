@@ -1,4 +1,6 @@
-﻿using GmailAPI.Data;
+﻿using AutoMapper;
+using GmailAPI.Data;
+using GmailAPI.Interface;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,14 +29,13 @@ namespace GmailAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
-
-
+            //var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
+            var connectionString = "Data Source=.;Initial Catalog=GmailAPI;User Id=tran;Password=tran;";
             services.AddControllers();
 
             services.AddSwaggerGen(x =>
             {
-                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Tweetbook API", Version = "v1" });
+                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Gmail API", Version = "v1" });
 
             });
 
@@ -43,6 +44,17 @@ namespace GmailAPI
             {
                 options.UseSqlServer(connectionString, options => options.EnableRetryOnFailure());
             }, ServiceLifetime.Transient);
+
+            // Auto Mapper Configurations  
+            var mappingConfig = new MapperConfiguration(mc => {
+                mc.AddProfile(new MapperProfile());
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
+            services.AddScoped<IGmailSpool, GmailSpool>();
+
+            
         }
 
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IWebHostEnvironment env)

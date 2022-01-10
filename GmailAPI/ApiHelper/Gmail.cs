@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GmailAPI.ApiHelper
 {
-    internal class Gmail
+    public class Gmail
     {
         public string From { get; set; }
 
